@@ -1,0 +1,100 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "stockdesk": {
+      ".read": false,
+      ".write": false,
+      "users": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin'",
+        "$uid": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin')",
+          ".write": "auth != null && (root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin' || (auth.uid === $uid && ((!data.exists() && newData.child('uid').val() === auth.uid && newData.child('active').val() === true && (newData.child('role').val() === 'cashier' || (newData.child('role').val() === 'admin' && (!root.child('stockdesk/users').exists() || (auth.token.email === 'skriju148@gmail.com' && auth.token.email_verified === true))))) || (data.exists() && newData.child('uid').val() === data.child('uid').val() && newData.child('role').val() === data.child('role').val() && newData.child('active').val() === data.child('active').val()))))",
+          ".validate": "newData.hasChildren(['uid', 'name', 'email', 'role', 'active']) && newData.child('uid').isString() && newData.child('uid').val() === $uid && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 100 && newData.child('email').isString() && newData.child('email').val().length <= 150 && (newData.child('role').val() === 'admin' || newData.child('role').val() === 'cashier') && newData.child('active').isBoolean()"
+        }
+      },
+      "settings": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin'",
+        "invoiceCounter": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() === data.val() + 1 || root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin')"
+        },
+        "shopName": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120" },
+        "defaultTaxRate": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+        "lowStockThreshold": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000" }
+      },
+      "categories": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        "$categoryId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin'",
+          ".validate": "!newData.exists() || (newData.hasChildren(['id', 'name']) && newData.child('id').val() === $categoryId && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 80)"
+        }
+      },
+      "products": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        "$productId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin'",
+          ".validate": "!newData.exists() || (newData.hasChildren(['id', 'name', 'sku', 'purchasePrice', 'sellingPrice', 'stock', 'minStock', 'unit']) && newData.child('id').val() === $productId && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 150 && newData.child('sku').isString() && newData.child('sku').val().length > 0 && newData.child('sku').val().length <= 60 && newData.child('purchasePrice').isNumber() && newData.child('purchasePrice').val() >= 0 && newData.child('sellingPrice').isNumber() && newData.child('sellingPrice').val() >= 0 && newData.child('stock').isNumber() && newData.child('stock').val() >= 0 && newData.child('minStock').isNumber() && newData.child('minStock').val() >= 0 && (newData.child('unit').val() === 'Piece' || newData.child('unit').val() === 'Kg' || newData.child('unit').val() === 'Gram' || newData.child('unit').val() === 'Litre' || newData.child('unit').val() === 'Box'))",
+          "stock": {
+            ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && data.parent().exists()",
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          },
+          "updatedAt": {
+            ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && data.parent().exists()",
+            ".validate": "newData.isNumber()"
+          }
+        }
+      },
+      "customers": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        "$customerId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && (newData.exists() || root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin')",
+          ".validate": "!newData.exists() || (newData.hasChildren(['id', 'name', 'phone']) && newData.child('id').val() === $customerId && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 120 && newData.child('phone').isString() && newData.child('phone').val().length >= 5 && newData.child('phone').val().length <= 25 && (!newData.child('totalSpent').exists() || (newData.child('totalSpent').isNumber() && newData.child('totalSpent').val() >= 0)) && (!newData.child('outstandingBalance').exists() || (newData.child('outstandingBalance').isNumber() && newData.child('outstandingBalance').val() >= 0)))"
+        }
+      },
+      "suppliers": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        "$supplierId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin'",
+          ".validate": "!newData.exists() || (newData.hasChildren(['id', 'name', 'phone']) && newData.child('id').val() === $supplierId && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 120 && newData.child('phone').isString() && newData.child('phone').val().length <= 25)"
+        }
+      },
+      "sales": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        "$saleId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && ((!data.exists() && newData.exists() && newData.child('cashierUid').val() === auth.uid && newData.child('status').val() === 'completed') || (data.exists() && newData.exists() && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin' && data.child('status').val() === 'completed' && newData.child('status').val() === 'cancelled' && newData.child('grandTotal').val() === data.child('grandTotal').val()))",
+          ".validate": "newData.hasChildren(['id', 'invoiceNo', 'items', 'subtotal', 'grandTotal', 'paymentMethod', 'status', 'cashierUid', 'createdAt']) && newData.child('id').val() === $saleId && newData.child('invoiceNo').isString() && newData.child('invoiceNo').val().length > 0 && newData.child('subtotal').isNumber() && newData.child('subtotal').val() >= 0 && newData.child('grandTotal').isNumber() && newData.child('grandTotal').val() >= 0 && (newData.child('paymentMethod').val() === 'Cash' || newData.child('paymentMethod').val() === 'UPI' || newData.child('paymentMethod').val() === 'Card') && (newData.child('status').val() === 'completed' || newData.child('status').val() === 'cancelled')"
+        }
+      },
+      "purchases": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        "$purchaseId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin' && !data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['id', 'invoiceNo', 'supplierId', 'items', 'totalAmount', 'createdBy', 'createdAt']) && newData.child('id').val() === $purchaseId && newData.child('createdBy').val() === auth.uid && newData.child('totalAmount').isNumber() && newData.child('totalAmount').val() >= 0"
+        }
+      },
+      "expenses": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        "$expenseId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin'",
+          ".validate": "!newData.exists() || (newData.hasChildren(['id', 'title', 'category', 'amount', 'date']) && newData.child('id').val() === $expenseId && newData.child('title').isString() && newData.child('title').val().length > 0 && newData.child('amount').isNumber() && newData.child('amount').val() >= 0)"
+        }
+      },
+      "stock_movements": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true",
+        "$movementId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && !data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['id', 'productId', 'type', 'qtyChange', 'previousStock', 'newStock', 'userId', 'createdAt']) && newData.child('id').val() === $movementId && newData.child('userId').val() === auth.uid && newData.child('qtyChange').isNumber() && newData.child('newStock').isNumber() && newData.child('newStock').val() >= 0"
+        }
+      },
+      "activity_logs": {
+        ".read": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && root.child('stockdesk/users').child(auth.uid).child('role').val() === 'admin'",
+        "$logId": {
+          ".write": "auth != null && root.child('stockdesk/users').child(auth.uid).child('active').val() === true && !data.exists() && newData.exists()",
+          ".validate": "newData.hasChildren(['id', 'action', 'entityType', 'userId', 'createdAt']) && newData.child('id').val() === $logId && newData.child('userId').val() === auth.uid && newData.child('action').isString() && newData.child('action').val().length <= 120"
+        }
+      }
+    }
+  }
+}

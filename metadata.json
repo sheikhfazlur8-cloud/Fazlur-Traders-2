@@ -1,0 +1,6 @@
+{
+  "name": "StockDesk",
+  "description": "Cloud-based Inventory Management & Quick Billing POS System powered by Firebase Realtime Database and Firebase Authentication.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
